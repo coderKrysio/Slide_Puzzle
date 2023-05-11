@@ -6,6 +6,7 @@ let rows = 4;
 let w,h;
 let board = [];
 let tiles = [];
+let blankSpot = -1;
 
 function preload() {
     source = loadImage("./image/animegirl_1.jpg");
@@ -40,16 +41,27 @@ function swap(i, j, arr) {
     arr[j] = temp;
 }
 
+function randomMove(arr) {
+    let r1 = floor(random(cols));
+    let r2 = floor(random(rows));
+    move(r1, r2, arr);
+}
+
 function simpleShuffle(arr) {
-    for(let i = 0; i < 100; i++){
-        let r1 = floor(random(0, arr.length));
-        let r2 = floor(random(0, arr.length));
-        swap(r1, r2, arr);
+    for(let i = 0; i < 5; i++){
+        randomMove(arr);
     }
+}
+
+function mousePressed() {
+    let i = floor(mouseX / w);
+    let j = floor(mouseY / h);
+    move(i, j, board);
 }
   
 function draw() {
-    //image(source, 0, 0);
+    background(0);
+    //randomMove(board);
 
     for(let i = 0; i < cols; i++){
         for(let j = 0; j < rows; j++){
@@ -73,5 +85,46 @@ function draw() {
             rect(x, y, w, h);
         }
     }
-    noLoop();
+
+    if(isSolved()) {
+        console.log("Solved");
+    }
+}
+
+function isSolved() {
+    for(let i = 0; i < board.length - 1; i++){
+        if(board[i] !== tiles[i].index) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+function move(i, j, arr) {
+    let blank = findBlank();
+    let blankCol = blank % cols;
+    let blankRow = floor(blank / rows);
+
+    if(isNeighbor(i, j, blankCol, blankRow)) {
+        swap(blank, i + j * cols, arr);
+    }
+}
+
+function isNeighbor(i, j, x, y){
+    if(i !== x && j !== y){
+        return false;
+    }
+
+    if(abs(i-x) == 1 || abs(j-y) == 1){
+        return true;
+    }
+
+    return false;
+}
+
+function findBlank() {
+    for(let i = 0; i < board.length; i++){
+        if(board[i] == -1) return i;
+    }
 }
